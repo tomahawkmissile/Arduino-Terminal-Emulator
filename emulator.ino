@@ -93,14 +93,17 @@ void screenPrint(String text) {
   uint16_t w,h;
   tft.getTextBounds(text,0,0,&x1,&y1,&w,&h);
   y_index+=h;
-
+  
   //TODO: implement scrolling
   bool alreadyScrolled = false;
+  bool justCleared = false;
   
   if(y_index >= tft.height()) {
     y_index=0;
     tft.fillScreen(0x0000);
     tft.setCursor(0,0);
+    justCleared = true;
+    tft.getTextBounds(text,0,0,&x1,&y1,&w,&h);
   }
   tft.print(text);
 }
@@ -110,8 +113,23 @@ int max_str_length = 512;
 
 //TODO: Argument parser for custom commands. Returns false if no args recognized.
 bool argsParser(String input) {
-  return false;
+  if (input.substring(0,6).equals("COLOR=")) {
+    tft.setTextColor(input.substring(6).toInt());
+  } else if(input.equals("RESET")) {
+    resetTFT();
+  } else {
+    return false;
+  }
+  return true;
 }
+
+void processInput(String incoming) {
+  if(!argsParser(incoming)) {
+    screenPrint(incoming);
+  }
+}
+
+String cmd = "";
 
 void loop() {
   digitalWrite(13, HIGH);
@@ -126,19 +144,14 @@ void loop() {
   }
   
   if(Serial.available() > 0) {
-    String incoming = Serial.readString();
-    if(incoming.length()>1024) {
-      String truncated=incoming.substring(0,max_str_length);
-      if(incoming.indexOf('\n')>=0) {
-        truncated+='\n';
-      }
-      incoming=truncated;
-      Serial.println("Received string length over "+String(max_str_length)+" characters. Truncating to fit within.");
+    cmd += (char)Serial.read();
+    if(cmd.length()>255) {
+      processInput(cmd);
+      cmd = "";
     }
-    if(incoming.equals("RESET\n") || incoming.equals("RESET")) {
-      resetTFT();
-    } else if (!argsParser(incoming)) {
-      screenPrint(incoming);
-    }
+  } else if(!cmd.equals("")) {
+    Serial.println("nope");
+    processInput(cmd);
+    cmd = "";
   }
 }
