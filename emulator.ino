@@ -35,12 +35,13 @@ void resetTFT() {
   tft.setRotation(2);
   tft.setTextColor(0xFFFF);
   tft.setTextSize(1);
+  tft.setCursor(0,0);
   tft.fillRect(0,0,tft.width(),tft.height(),0x0000);
 
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   resetTFT();
 }
@@ -103,16 +104,20 @@ void screenPrint(String text) {
     tft.fillScreen(0x0000);
     tft.setCursor(0,0);
     justCleared = true;
-    tft.getTextBounds(text,0,0,&x1,&y1,&w,&h);
   }
   tft.print(text);
+
+  if(justCleared) {
+    tft.getTextBounds(text,0,0,&x1,&y1,&w,&h);
+  }
 }
 
 //Configuration values
 int max_str_length = 512;
 
-//TODO: Argument parser for custom commands. Returns false if no args recognized.
+//Argument parser for custom commands. Returns false if no args recognized.
 bool argsParser(String input) {
+  Serial.println(input);
   if (input.substring(0,6).equals("COLOR=")) {
     tft.setTextColor(input.substring(6).toInt());
   } else if(input.equals("RESET")) {
@@ -149,6 +154,7 @@ void loop() {
       processInput(cmd);
       cmd = "";
     }
+    //delayMicroseconds(50);
   } else if(!cmd.equals("")) {
     processInput(cmd);
     cmd = "";
