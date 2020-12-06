@@ -105,7 +105,6 @@ void screenPrint(String text) {
     justCleared = true;
     tft.getTextBounds(text,0,0,&x1,&y1,&w,&h);
   }
-  Serial.println(y_index);
   tft.print(text);
 }
 
