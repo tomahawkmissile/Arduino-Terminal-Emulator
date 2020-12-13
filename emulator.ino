@@ -117,7 +117,6 @@ int max_str_length = 512;
 
 //Argument parser for custom commands. Returns false if no args recognized.
 bool argsParser(String input) {
-  Serial.println(input);
   if (input.substring(0,6).equals("COLOR=")) {
     tft.setTextColor(input.substring(6).toInt());
   } else if(input.equals("RESET")) {
@@ -148,15 +147,18 @@ void loop() {
     Serial.println(String("Touch registered at: (")+p.x+String(",")+p.y+String(")"));
   }
   
-  if(Serial.available() > 0) {
-    cmd += (char)Serial.read();
-    if(cmd.length()>255) {
+  while(Serial.available() > 0) {
+    char ch = (char)Serial.read();
+    cmd += ch;
+    if(ch != '\n' && ch != '\r') {
+      if(cmd.length()>1023) {
+        processInput(cmd);
+        cmd = "";
+      }
+    } else {
       processInput(cmd);
-      cmd = "";
     }
+    
     //delayMicroseconds(50);
-  } else if(!cmd.equals("")) {
-    processInput(cmd);
-    cmd = "";
   }
 }
