@@ -151,12 +151,10 @@ void loop() {
     char ch = (char)Serial.read();
     cmd += ch;
     if(ch != '\n' && ch != '\r') {
-      if(cmd.length()>1023) {
-        processInput(cmd);
-        cmd = "";
-      }
+      
     } else {
       processInput(cmd);
+      cmd="";
     }
     
     //delayMicroseconds(50);
