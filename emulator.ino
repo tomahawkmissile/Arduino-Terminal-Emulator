@@ -32,18 +32,12 @@ void resetTFT() {
 
   uint16_t identifier = tft.readID();
   tft.begin(identifier);
-  tft.setRotation(2);
+  tft.setRotation(1);
   tft.setTextColor(0xFFFF);
   tft.setTextSize(1);
   tft.setCursor(0,0);
   tft.fillRect(0,0,tft.width(),tft.height(),0x0000);
 
-}
-
-void setup() {
-  Serial.begin(115200);
-
-  resetTFT();
 }
 
 String cleanseString(String input) {
@@ -89,6 +83,9 @@ int getReturnCount(String input) {
 
 int c=1;
 
+void screenPrintln() {
+  tft.println();
+}
 void screenPrint(String text) {
   int16_t x1,y1;
   uint16_t w,h;
@@ -159,4 +156,14 @@ void loop() {
     
     //delayMicroseconds(50);
   }
+}
+void setup() {
+  Serial.begin(115200);
+
+  resetTFT();
+
+  tft.setTextColor(0x073F);
+  
+  screenPrint("Initializing terminal emulator...");
+  screenPrintln();
 }
